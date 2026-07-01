@@ -5,7 +5,11 @@ Keiko is a personal AI assistant built with [n8n](https://n8n.io/) that runs thr
 - 💬 Chat with you naturally, with short-term memory of the conversation
 - 📅 Schedule meetings on Google Calendar (extracts attendees, time, title, etc. from your message)
 - 📧 Send emails via Gmail (including automatic calendar invites to meeting attendees)
-  
+
+## Workflow Screenshot
+
+![Keiko Workflow](./workflow-canvas.png)
+
 ## How it works
 
 ```
