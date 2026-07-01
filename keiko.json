@@ -1,0 +1,251 @@
+{
+  "name": "keiko",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "989408a3-2d9b-49d7-b425-3fc32f94d868",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        112
+      ],
+      "webhookId": "8ee08a84-1bc5-4f56-8ace-5beb5f13cc09",
+      "credentials": {
+        "telegramApi": {
+          "id": "RZOmnNE1zErGiAIT",
+          "name": "Keiko bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are a personal AI assistant. Follow the rules:\n\n- Use the \"Schedule Meeting\" tool to schedule meetings based on the user's message. The message will include attendees' names, email addresses, start time, end time, duration, and title of the meeting. Use these details to create the meeting event.\n\n- After successfully scheduling a meeting, ALWAYS use the \"Send Email\" tool to send a calendar invite to every attendee. Set the recipients to the attendees' email addresses, use a clear subject like \"Meeting Invite: <title>\", and include the meeting details (title, date, time, location, and attendees) in the email body.\n\n- Use the \"Send Email\" tool whenever the user asks to send an email. Extract the recipient email address(es), subject, and message content from the user's request. If any of these are missing, ask the user for them before sending.\n\n- The current date time is {{ $now }}\n\n- make sure at the end of an email you write Best Regards\n-Atharva\n"
+        }
+      },
+      "id": "31d7ea0b-bb57-4cc4-83aa-0147d4fc107d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        352,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "71338d52-22b8-4538-b0d3-c1c9dcac9840",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        368
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "xCnTtDabsfnCkqKA",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "KEIKO"
+      },
+      "id": "243e989b-e82d-4921-9ef8-95c8be37ace1",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        176,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "YOUR_EMAIL_ID",
+          "mode": "list",
+          "cachedResultName": "YOUR_EMAIL_ID"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "location": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Location', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "id": "1322592e-b298-436e-a896-42b93b3d2586",
+      "name": "Schedule Meeting",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        352
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "uPyonJcBhzS93GJn",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', `Comma-separated recipient email addresses`, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', `The subject line of the email`, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', `The body content of the email`, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e3a10de5-51b3-49a0-b166-9fb32338e5dd",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        352
+      ],
+      "webhookId": "f236aa7c-2667-4055-bc5c-f0f1a829d979",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "yGp8XcfpDi2Y21Oa",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "07173024-5785-4580-b684-c2ec8c1cb676",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        112
+      ],
+      "webhookId": "04d1b2da-b36d-4afe-9ba5-49dce247a5c9",
+      "credentials": {
+        "telegramApi": {
+          "id": "RZOmnNE1zErGiAIT",
+          "name": "Keiko bot"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Meeting": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f3c9fbeb-1bb4-4997-9b71-0a3710664595",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0af71158e00790f5ab0a0b2961c92a7f52462ab8099d409018df728658404282"
+  },
+  "nodeGroups": [],
+  "id": "CldwZQuvWd1GndNO",
+  "tags": []
+}
